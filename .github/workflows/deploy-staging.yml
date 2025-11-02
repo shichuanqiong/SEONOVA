@@ -1,0 +1,40 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  ci-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Run all tests
+        run: npm run test:all
+        continue-on-error: false
+      
+      - name: Deploy to Staging
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /srv/seonova/staging
+            git pull origin develop || git clone https://github.com/shichuanqiong/SEONOVA.git .
+            docker compose -f docker-compose.staging.yml down || true
+            docker compose -f docker-compose.staging.yml up -d --build
+            sleep 10
+            curl -f http://localhost:3000/api/health || exit 1
