@@ -1,8 +1,4 @@
 {
-  "build": {
-    "builder": "dockerfile"
-  },
-  "deploy": {
-    "startCommand": "/start.sh"
-  }
+  "build": { "builder": "dockerfile" },
+  "deploy": { "startCommand": "python start.py" }
 }
