@@ -1,12 +1,11 @@
 FROM python:3.12-slim
 
 WORKDIR /app
-
 COPY . .
 
 ENV PORT=8000
 
-# 直接安装依赖
+# 安装依赖
 RUN pip install --no-cache-dir \
     fastapi==0.104.1 \
     uvicorn==0.24.0 \
